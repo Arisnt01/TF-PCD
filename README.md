@@ -2,18 +2,18 @@
 
 Sistema de recomendación basado en filtrado colaborativo usuario-usuario implementado en **Go puro** con arquitectura distribuida mediante **TCP sockets**, REST API y sistema de métricas.
 
-## 📋 Características Principales
+## Características Principales
 
-- ✅ **Arquitectura Distribuida**: 8 workers procesando particiones en paralelo vía TCP
-- ✅ **REST API**: Endpoints para recomendaciones, métricas y health checks
-- ✅ **Base de Datos**: Sistema in-memory con persistencia JSON
-- ✅ **Métricas de Rendimiento**: Sistema de tracking de latencia y recursos
-- ✅ **Sistema de Caché**: Optimización de respuestas repetidas
-- ✅ **Docker**: Contenerización completa con docker-compose
-- ✅ **Dataset**: MovieLens 25M (~25 millones de ratings)
-- ✅ **Go Puro**: Sin librerías externas, solo standard library
+- **Arquitectura Distribuida**: 8 workers procesando particiones en paralelo vía TCP
+- **REST API**: Endpoints para recomendaciones, métricas y health checks
+- **Base de Datos**: Sistema in-memory con persistencia JSON
+- **Métricas de Rendimiento**: Sistema de tracking de latencia y recursos
+- **Sistema de Caché**: Optimización de respuestas repetidas
+- **Docker**: Contenerización completa con docker-compose
+- **Dataset**: MovieLens 25M (~25 millones de ratings)
+- **Go Puro**: Sin librerías externas, solo standard library
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ```
 ┌──────────────┐
@@ -44,7 +44,7 @@ Sistema de recomendación basado en filtrado colaborativo usuario-usuario implem
   └─────────────────────────┘
 ```
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Prerrequisitos
 
@@ -67,18 +67,6 @@ docker-compose ps
 # 3. Ver logs del coordinador
 docker-compose logs -f coordinator
 
-# 4. Health check
-curl http://localhost:8080/api/health
-
-# 5. Probar recomendaciones
-curl -X POST http://localhost:8080/api/recommendations `
-  -H "Content-Type: application/json" `
-  -d '{"user_id": 1, "num_recommendations": 10}'
-
-# Detener sistema
-docker-compose down
-```
-
 ## 📡 API REST - Documentación
 
 ### Base URL
@@ -88,7 +76,7 @@ http://localhost:8080
 
 ### Endpoints
 
-#### 1. 🎬 Obtener Recomendaciones
+#### 1.  Obtener Recomendaciones
 
 ```http
 POST /api/recommendations
@@ -134,7 +122,7 @@ Content-Type: application/json
 
 ---
 
-#### 2. ❤️ Health Check
+#### 2. Health Check
 
 ```http
 GET /api/health
@@ -169,7 +157,7 @@ GET /api/health
 
 ---
 
-#### 3. 📊 Métricas de Rendimiento (Etapa 5)
+#### 3. Métricas de Rendimiento (Etapa 5)
 
 ```http
 GET /api/metrics
@@ -216,10 +204,10 @@ GET /api/metrics
 
 ---
 
-#### 4. 👤 Información de Usuario
+#### 4. Información de Usuario
 
 ```http
-GET /api/users/:id
+GET /api/users/{id}
 ```
 
 **Ejemplo:**
@@ -239,10 +227,10 @@ curl http://localhost:8080/api/users/1
 
 ---
 
-#### 5. 🎥 Información de Película
+#### 5. Información de Película
 
 ```http
-GET /api/movies/:id
+GET /api/movies/{id}
 ```
 
 **Ejemplo:**
@@ -263,7 +251,7 @@ curl http://localhost:8080/api/movies/2571
 
 ---
 
-## ⚙️ Configuración del Sistema
+## Configuración del Sistema
 
 ### Variables de Entorno (Docker)
 
@@ -294,34 +282,7 @@ Flags:
 
 ---
 
-### Flags del Worker (`worker.go`)
-
-```bash
-./worker.exe [flags]
-
-Flags:
-  --listen string      Dirección de escucha TCP (default ":9001")
-                       Formato: ":puerto" o "host:puerto"
-  
-  --partition string   Ruta al archivo CSV de partición (requerido)
-                       Ejemplo: "data_25M/ratings_part1.csv"
-  
-  --name string       Nombre identificador del worker (opcional)
-                       Si no se especifica, usa el puerto
-```
-
-**Ejemplos:**
-```bash
-# Worker 1
-.\worker.exe --listen=:9001 --partition=data_25M\ratings_part1.csv --name=worker1
-
-# Worker con IP específica
-.\worker.exe --listen=192.168.1.10:9001 --partition=data_25M\ratings_part1.csv --name=worker_node_1
-```
-
----
-
-## 📊 Resultados de Rendimiento (Etapa 5)
+## Resultados de Rendimiento (Etapa 5)
 
 ### Configuración del Benchmark
 
@@ -329,10 +290,10 @@ Flags:
 |-----------|-------|
 | Dataset | MovieLens 25M (25,000,095 ratings) |
 | Workers | 8 nodos distribuidos |
-| Particiones | ~3,125,012 ratings por worker |
+| Particiones | 3,125,012 ratings por worker aproximadamente|
 | k-NN | k=30 vecinos |
 | Sample Size | 20,000 usuarios por request |
-| Hardware | [Completar con tu configuración] |
+| Hardware | RAM 12 GB 4 núcleos, 8 hilos |
 | Red | Localhost (TCP sockets) |
 
 ### Resultados Comparativos
@@ -362,13 +323,13 @@ Eficiencia (E) = Speedup / Número de Workers
 ```
 
 **Interpretación:**
-- ✅ Speedup de **3.76x** demuestra escalabilidad efectiva
-- ⚠️ Eficiencia del 47% es razonable considerando:
+- Speedup de **3.76x** demuestra escalabilidad efectiva
+- Eficiencia del 47% es razonable considerando:
   - Overhead de comunicación TCP entre coordinator y workers
   - Tiempo de serialización/deserialización JSON
   - Distribución no uniforme de usuarios similares en particiones
   - Agregación y merge de resultados parciales
-  - Latencia de red (incluso en localhost)
+  - Latencia de red
 
 #### Gráfica de Escalabilidad
 
@@ -404,17 +365,18 @@ Uso de Recursos por Modo
 ```
 
 **Ventajas del Modo Distribuido:**
-1. ✅ Mejor utilización de múltiples núcleos
-2. ✅ Menor presión de memoria por nodo
-3. ✅ Escalabilidad horizontal (agregar más workers)
-4. ✅ Tolerancia a fallos (workers independientes)
-5. ✅ Balanceo de carga natural
+1. Mejor utilización de múltiples núcleos
+2. Menor presión de memoria por nodo
+3. Escalabilidad horizontal (agregar más workers)
+4. Tolerancia a fallos (workers independientes)
+5. Balanceo de carga natural
 
 ---
 
-## 🧪 Pruebas de Rendimiento
+## Pruebas de Rendimiento
 
 ### Verificar Estado del Sistema
+<img width="1352" height="815" alt="image" src="https://github.com/user-attachments/assets/038fec7e-1c37-4559-b312-489890e3bda8" />
 
 ```powershell
 # Ver health de todos los workers
