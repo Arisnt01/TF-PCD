@@ -1,0 +1,136 @@
+services:
+  # Worker 1
+  worker1:
+    build: .
+    container_name: recommendation-worker1
+    command: ["/app/worker", "--listen", ":9001", "--partition", "/app/data_25M/ratings_part1.csv", "--name", "worker1"]
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 2
+  worker2:
+    build: .
+    container_name: recommendation-worker2
+    command: ["/app/worker", "--listen", ":9002", "--partition", "/app/data_25M/ratings_part2.csv", "--name", "worker2"]
+    ports:
+      - "9002:9002"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 3
+  worker3:
+    build: .
+    container_name: recommendation-worker3
+    command: ["/app/worker", "--listen", ":9003", "--partition", "/app/data_25M/ratings_part3.csv", "--name", "worker3"]
+    ports:
+      - "9003:9003"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 4
+  worker4:
+    build: .
+    container_name: recommendation-worker4
+    command: ["/app/worker", "--listen", ":9004", "--partition", "/app/data_25M/ratings_part4.csv", "--name", "worker4"]
+    ports:
+      - "9004:9004"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 5
+  worker5:
+    build: .
+    container_name: recommendation-worker5
+    command: ["/app/worker", "--listen", ":9005", "--partition", "/app/data_25M/ratings_part5.csv", "--name", "worker5"]
+    ports:
+      - "9005:9005"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 6
+  worker6:
+    build: .
+    container_name: recommendation-worker6
+    command: ["/app/worker", "--listen", ":9006", "--partition", "/app/data_25M/ratings_part6.csv", "--name", "worker6"]
+    ports:
+      - "9006:9006"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 7
+  worker7:
+    build: .
+    container_name: recommendation-worker7
+    command: ["/app/worker", "--listen", ":9007", "--partition", "/app/data_25M/ratings_part7.csv", "--name", "worker7"]
+    ports:
+      - "9007:9007"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Worker 8
+  worker8:
+    build: .
+    container_name: recommendation-worker8
+    command: ["/app/worker", "--listen", ":9008", "--partition", "/app/data_25M/ratings_part8.csv", "--name", "worker8"]
+    ports:
+      - "9008:9008"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+    networks:
+      - recommendation-network
+    restart: unless-stopped
+
+  # Coordinador y API
+  coordinator:
+    build: .
+    container_name: recommendation-coordinator
+    command: ["/app/distributed_system", "-api", ":8080"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data_25M:/app/data_25M:ro
+      - ./db_snapshot.json:/app/db_snapshot.json
+    networks:
+      - recommendation-network
+    depends_on:
+      - worker1
+      - worker2
+      - worker3
+      - worker4
+      - worker5
+      - worker6
+      - worker7
+      - worker8
+    restart: unless-stopped
+    environment:
+      - WORKERS=worker1:9001,worker2:9002,worker3:9003,worker4:9004,worker5:9005,worker6:9006,worker7:9007,worker8:9008
+
+networks:
+  recommendation-network:
+    driver: bridge
+
+volumes:
+  data-volume:
