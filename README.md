@@ -2,18 +2,18 @@
 
 Sistema de recomendación basado en filtrado colaborativo usuario-usuario implementado en **Go puro** con arquitectura distribuida mediante **TCP sockets**, REST API y sistema de métricas.
 
-## 📋 Características Principales
+## Características Principales
 
-- ✅ **Arquitectura Distribuida**: 8 workers procesando particiones en paralelo vía TCP
-- ✅ **REST API**: Endpoints para recomendaciones, métricas y health checks
-- ✅ **Base de Datos**: Sistema in-memory con persistencia JSON
-- ✅ **Métricas de Rendimiento**: Sistema de tracking de latencia y recursos
-- ✅ **Sistema de Caché**: Optimización de respuestas repetidas
-- ✅ **Docker**: Contenerización completa con docker-compose
-- ✅ **Dataset**: MovieLens 25M (~25 millones de ratings)
-- ✅ **Go Puro**: Sin librerías externas, solo standard library
+- **Arquitectura Distribuida**: 8 workers procesando particiones en paralelo vía TCP
+- **REST API**: Endpoints para recomendaciones, métricas y health checks
+- **Base de Datos**: Sistema in-memory con persistencia JSON
+- **Métricas de Rendimiento**: Sistema de tracking de latencia y recursos
+- **Sistema de Caché**: Optimización de respuestas repetidas
+- **Docker**: Contenerización completa con docker-compose
+- **Dataset**: MovieLens 25M (~25 millones de ratings)
+- **Go Puro**: Sin librerías externas, solo standard library
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ```
 ┌──────────────┐
@@ -44,7 +44,7 @@ Sistema de recomendación basado en filtrado colaborativo usuario-usuario implem
   └─────────────────────────┘
 ```
 
-## 🚀 Inicio Rápido
+## Inicio Rápido
 
 ### Prerrequisitos
 
@@ -67,18 +67,6 @@ docker-compose ps
 # 3. Ver logs del coordinador
 docker-compose logs -f coordinator
 
-# 4. Health check
-curl http://localhost:8080/api/health
-
-# 5. Probar recomendaciones
-curl -X POST http://localhost:8080/api/recommendations `
-  -H "Content-Type: application/json" `
-  -d '{"user_id": 1, "num_recommendations": 10}'
-
-# Detener sistema
-docker-compose down
-```
-
 ## 📡 API REST - Documentación
 
 ### Base URL
@@ -88,7 +76,7 @@ http://localhost:8080
 
 ### Endpoints
 
-#### 1. 🎬 Obtener Recomendaciones
+#### 1.  Obtener Recomendaciones
 
 ```http
 POST /api/recommendations
@@ -134,7 +122,7 @@ Content-Type: application/json
 
 ---
 
-#### 2. ❤️ Health Check
+#### 2. Health Check
 
 ```http
 GET /api/health
@@ -169,7 +157,7 @@ GET /api/health
 
 ---
 
-#### 3. 📊 Métricas de Rendimiento (Etapa 5)
+#### 3. Métricas de Rendimiento (Etapa 5)
 
 ```http
 GET /api/metrics
@@ -216,10 +204,10 @@ GET /api/metrics
 
 ---
 
-#### 4. 👤 Información de Usuario
+#### 4. Información de Usuario
 
 ```http
-GET /api/users/:id
+GET /api/users/{id}
 ```
 
 **Ejemplo:**
@@ -239,10 +227,10 @@ curl http://localhost:8080/api/users/1
 
 ---
 
-#### 5. 🎥 Información de Película
+#### 5. Información de Película
 
 ```http
-GET /api/movies/:id
+GET /api/movies/{id}
 ```
 
 **Ejemplo:**
@@ -263,7 +251,7 @@ curl http://localhost:8080/api/movies/2571
 
 ---
 
-## ⚙️ Configuración del Sistema
+## Configuración del Sistema
 
 ### Variables de Entorno (Docker)
 
@@ -294,34 +282,7 @@ Flags:
 
 ---
 
-### Flags del Worker (`worker.go`)
-
-```bash
-./worker.exe [flags]
-
-Flags:
-  --listen string      Dirección de escucha TCP (default ":9001")
-                       Formato: ":puerto" o "host:puerto"
-  
-  --partition string   Ruta al archivo CSV de partición (requerido)
-                       Ejemplo: "data_25M/ratings_part1.csv"
-  
-  --name string       Nombre identificador del worker (opcional)
-                       Si no se especifica, usa el puerto
-```
-
-**Ejemplos:**
-```bash
-# Worker 1
-.\worker.exe --listen=:9001 --partition=data_25M\ratings_part1.csv --name=worker1
-
-# Worker con IP específica
-.\worker.exe --listen=192.168.1.10:9001 --partition=data_25M\ratings_part1.csv --name=worker_node_1
-```
-
----
-
-## 📊 Resultados de Rendimiento (Etapa 5)
+## Resultados de Rendimiento (Etapa 5)
 
 ### Configuración del Benchmark
 
@@ -329,10 +290,10 @@ Flags:
 |-----------|-------|
 | Dataset | MovieLens 25M (25,000,095 ratings) |
 | Workers | 8 nodos distribuidos |
-| Particiones | ~3,125,012 ratings por worker |
+| Particiones | 3,125,012 ratings por worker aproximadamente|
 | k-NN | k=30 vecinos |
 | Sample Size | 20,000 usuarios por request |
-| Hardware | [Completar con tu configuración] |
+| Hardware | RAM 12 GB 4 núcleos, 8 hilos |
 | Red | Localhost (TCP sockets) |
 
 ### Resultados Comparativos
@@ -362,13 +323,13 @@ Eficiencia (E) = Speedup / Número de Workers
 ```
 
 **Interpretación:**
-- ✅ Speedup de **3.76x** demuestra escalabilidad efectiva
-- ⚠️ Eficiencia del 47% es razonable considerando:
+- Speedup de **3.76x** demuestra escalabilidad efectiva
+- Eficiencia del 47% es razonable considerando:
   - Overhead de comunicación TCP entre coordinator y workers
   - Tiempo de serialización/deserialización JSON
   - Distribución no uniforme de usuarios similares en particiones
   - Agregación y merge de resultados parciales
-  - Latencia de red (incluso en localhost)
+  - Latencia de red
 
 #### Gráfica de Escalabilidad
 
@@ -404,42 +365,23 @@ Uso de Recursos por Modo
 ```
 
 **Ventajas del Modo Distribuido:**
-1. ✅ Mejor utilización de múltiples núcleos
-2. ✅ Menor presión de memoria por nodo
-3. ✅ Escalabilidad horizontal (agregar más workers)
-4. ✅ Tolerancia a fallos (workers independientes)
-5. ✅ Balanceo de carga natural
+1. Mejor utilización de múltiples núcleos
+2. Menor presión de memoria por nodo
+3. Escalabilidad horizontal (agregar más workers)
+4. Tolerancia a fallos (workers independientes)
+5. Balanceo de carga natural
 
 ---
 
-## 🧪 Pruebas de Rendimiento
+## Pruebas de Rendimiento
 
 ### Verificar Estado del Sistema
+<img width="1352" height="815" alt="image" src="https://github.com/user-attachments/assets/038fec7e-1c37-4559-b312-489890e3bda8" />
 
-```powershell
-# Ver health de todos los workers
-curl http://localhost:8080/api/health
+### Verificar Métricas Acumuladas
+<img width="1343" height="825" alt="image" src="https://github.com/user-attachments/assets/58a34141-f3de-4727-83de-b978034b8399" />
 
-# Ver métricas acumuladas
-curl http://localhost:8080/api/metrics
-```
-
-### Script de Benchmark
-
-```bash
-# Ejecutar 100 requests con medición de tiempos
-for i in {1..100}; do
-    curl -X POST http://localhost:8080/api/recommendations \
-         -H "Content-Type: application/json" \
-         -d "{\"user_id\": $i, \"num_recommendations\": 10}" \
-         -w "%{time_total}\n" \
-         -s -o /dev/null
-done | awk '{sum+=$1; count++} END {print "Tiempo promedio:", sum/count, "s"}'
-```
-
----
-
-## 🏛️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 TF/
@@ -448,47 +390,47 @@ TF/
 │   ├── Middleware: CORS, Logging
 │   └── HTTP handlers
 │
-├── database.go                 # In-memory DB + JSON persistence (Etapa 6)
+├── database.go                 # Persistencia de DB + JSON en memoria (Etapa 6)
 │   ├── User/Movie management
 │   ├── Recommendation caching
 │   └── Automatic cleanup tasks
 │
-├── metrics.go                  # Performance tracking system (Etapa 5)
+├── metrics.go                  # Sistema de seguimiento de desempeño (Etapa 5)
 │   ├── Concurrent vs Distributed metrics
 │   ├── CPU/Memory monitoring
-│   └── Statistical functions (avg, median, min, max)
+│   └── Statistical functions (promedio, mediana, mínimo, máximo)
 │
-├── distributed_system.go       # Coordinator + Main (Etapa 4)
+├── distributed_system.go       # Coordinadora + Main (Etapa 4)
 │   ├── Worker pool management
 │   ├── TCP client to workers
 │   ├── Result aggregation
 │   └── Docker-only execution
 │
-├── worker.go                   # Distributed worker node (Etapa 4)
+├── worker.go                   # Nodo worker distribuido (Etapa 4)
 │   ├── TCP server
 │   ├── Data partition loading
 │   ├── Cosine similarity calculation
 │   └── Request processing
 │
-├── types.go                    # Shared type definitions
+├── types.go                    # Definiciones de tipos compartidos
 │   ├── SimilarityRequest
 │   ├── SimilarityResponse
 │   └── SimilarityResult
 │
-├── partition_data.go           # Dataset partitioner utility
+├── partition_data.go           # Utilidad de partición de conjuntos de datos
 │   └── Splits ratings.csv into 8 parts
 │
-├── Cosine_similarity.go        # Original concurrent implementation
+├── Cosine_similarity.go        # Implementación concurrente original (PC3)
 │   └── Reference/comparison version
 │
-├── Dockerfile                  # Multi-stage Docker build
+├── Dockerfile                  # Construcción de Docker
 │   ├── Builder: Go 1.21 Alpine
 │   └── Runtime: Alpine minimal
 │
-├── docker-compose.yml          # Multi-container orchestration
+├── docker-compose.yml          # Orquestación Multi-container
 │   ├── 8 worker services (worker1-worker8)
-│   ├── 1 coordinator service
-│   └── Shared network + volumes
+│   ├── 1 servicio coordinador
+│   └── Red compartida + volúmenes
 │
 └── data_25M/
     ├── ratings.csv             # Original dataset (25M ratings)
@@ -500,16 +442,16 @@ TF/
     ├── ratings_part6.csv       # Partition 6 (~3.1M, 80 MB)
     ├── ratings_part7.csv       # Partition 7 (~3.1M, 80 MB)
     ├── ratings_part8.csv       # Partition 8 (~3.1M, 80 MB)
-    ├── movies.csv              # Movie metadata
-    ├── tags.csv                # User tags
-    ├── links.csv               # External links (IMDb, TMDb)
-    ├── genome-scores.csv       # Tag relevance scores
-    └── genome-tags.csv         # Tag descriptions
+    ├── movies.csv              # Metadatos de la película
+    ├── tags.csv                # Etiquetas de usuario
+    ├── links.csv               # Enlaces externos (IMDb, TMDb)
+    ├── genome-scores.csv       # Puntuaciones de relevancia de etiquetas
+    └── genome-tags.csv         # Descripciones de etiquetas
 ```
 
 ---
 
-## 🔧 Algoritmo de Recomendación
+## Algoritmo de Recomendación
 
 ### 1. Filtrado Colaborativo User-Based
 
@@ -605,9 +547,9 @@ Donde:
 ```
 
 **Características:**
-- ✅ Centrado por promedio (elimina sesgos de usuarios generosos/críticos)
-- ✅ Ponderación por similitud (vecinos más similares tienen más peso)
-- ✅ Normalización (suma de similitudes en denominador)
+- Centrado por promedio (elimina sesgos de usuarios generosos/críticos)
+- Ponderación por similitud (vecinos más similares tienen más peso)
+- Normalización (suma de similitudes en denominador)
 
 ### 5. Optimizaciones Implementadas
 
@@ -645,9 +587,9 @@ Total: 25,000,095 ratings
 Por worker: ~3,125,012 ratings (1/8)
 
 Ventajas:
-✅ Paralelización natural
-✅ Menor uso de memoria por nodo
-✅ Cache locality mejorada
+Paralelización natural
+Menor uso de memoria por nodo
+Cache locality mejorada
 ```
 
 #### D. Caché de Recomendaciones
@@ -664,66 +606,7 @@ cacheExpiry[userID] = time.Now().Add(30 * time.Minute)
 
 ---
 
-## 🐛 Troubleshooting
-
-### Problema: Workers no se conectan
-
-```powershell
-# Verificar que los workers estén corriendo
-docker-compose ps
-
-# Ver logs de un worker específico
-docker-compose logs -f worker1
-
-# Reiniciar workers problemáticos
-docker-compose restart worker1
-```
-
-**Solución:**
-- Verificar que Docker Desktop esté corriendo
-- Comprobar variable WORKERS en docker-compose.yml
-- Reconstruir contenedores: `docker-compose up -d --build`
-
----
-
-### Problema: Altos tiempos de respuesta
-
-```bash
-# Verificar métricas
-curl http://localhost:8080/api/metrics
-
-# Revisar health de workers
-curl http://localhost:8080/api/health
-```
-
-**Posibles causas:**
-1. Workers offline → revisar logs
-2. Dataset no particionado → ejecutar `partition_data.go`
-3. Bajo sampling → aumentar `--sample` flag
-4. Pocos workers online → verificar docker-compose scale
-
----
-
-### Problema: Errores de memoria
-
-```bash
-# Monitorear uso de memoria
-docker stats
-
-# Limitar memoria por container en docker-compose.yml
-services:
-  worker1:
-    mem_limit: 1g
-```
-
-**Solución:**
-- Reducir sample size: `--sample=10000`
-- Aumentar memoria límite de Docker Desktop
-- Reducir número de workers activos
-
----
-
-## 📚 Referencias
+## Referencias
 
 ### Papers y Algoritmos
 - [Collaborative Filtering - Recommender Systems](https://dl.acm.org/doi/10.1145/371920.372071)
@@ -741,35 +624,20 @@ services:
 
 ---
 
-## 👥 Autores
+## Autores
 
-- **Nombre**: [Tu nombre]
+- **Nombre**: Abel Aguilar Caceres, Gabriel Alonso Reyna Alvarado, Jhonny Elias Ruiz Santos
 - **Curso**: Programación Concurrente y Distribuida
 - **Universidad**: UPC
 - **Fecha**: 2025-II
 
 ---
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto es de código abierto bajo la licencia MIT.
 
 ---
-
-## 🎯 Etapas Completadas
-
-- ✅ **Etapa 1-3**: Implementación concurrente con optimización (2000 users, k=30, 8 workers)
-- ✅ **Etapa 4**: Sistema distribuido con TCP sockets y coordinador
-- ✅ **Etapa 5**: Evaluación experimental y métricas de rendimiento
-- ✅ **Etapa 6**: Integración con API REST y base de datos in-memory
-
----
-
-## 📞 Soporte
-
-Para problemas o preguntas:
-1. Revisar sección de [Troubleshooting](#-troubleshooting)
-2. Ver logs detallados: `docker-compose logs -f`
 3. Verificar health: `GET /api/health`
 4. Revisar métricas: `GET /api/metrics`
 
