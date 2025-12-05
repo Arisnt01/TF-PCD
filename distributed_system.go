@@ -378,6 +378,12 @@ func main() {
 	if err := db.LoadMovies("data_25M/movies.csv"); err != nil {
 		log.Printf("[WARN] No se pudieron cargar películas: %v", err)
 	}
+	// Cargar links.csv (importante para TMDB)
+	if err := db.LoadMovieLinks("data_25M/links.csv"); err != nil {
+		log.Printf("[WARN] No se pudieron cargar links.csv: %v", err)
+	} else {
+		log.Println("[INFO] links.csv cargado correctamente")
+	}
 	db.StartCleanupTask()
 
 	// Inicializar métricas

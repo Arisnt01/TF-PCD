@@ -14,7 +14,8 @@ import (
 type Database struct {
 	Users               map[int]*User
 	Movies              map[int]*Movie
-	Ratings             map[int]map[int]float64 // userID -> movieID -> rating
+	Ratings             map[int]map[int]float64
+	MovieLinks          map[int]MovieLink // userID -> movieID -> rating -> movieLink
 	RecommendationCache map[int][]RecommendationItem
 	mu                  sync.RWMutex
 	persistPath         string
@@ -49,6 +50,7 @@ func NewDatabase(persistPath string) *Database {
 		Users:               make(map[int]*User),
 		Movies:              make(map[int]*Movie),
 		Ratings:             make(map[int]map[int]float64),
+		MovieLinks:          make(map[int]MovieLink),
 		RecommendationCache: make(map[int][]RecommendationItem),
 		persistPath:         persistPath,
 	}
@@ -333,6 +335,88 @@ func (db *Database) StartCleanupTask() {
 			db.Save()
 		}
 	}()
+}
+
+// Obtener las películas vistas por un usuario
+func (db *Database) GetUserWatchedMovies(userID int) ([]WatchedMovie, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
+	// Verificamos si el usuario existe en Ratings
+	userRatings, exists := db.Ratings[userID]
+	if !exists || len(userRatings) == 0 {
+		return nil, fmt.Errorf("no hay películas para este usuario")
+	}
+
+	watched := []WatchedMovie{}
+
+	// Recorrer todas las películas que este usuario ha puntuado
+	for movieID, rating := range userRatings {
+
+		// Ver si tenemos datos de la película
+		movie, ok := db.Movies[movieID]
+		if !ok {
+			continue // Película sin info cargada — saltamos
+		}
+
+		watched = append(watched, WatchedMovie{
+			MovieID: movieID,
+			Title:   movie.Title,
+			Rating:  rating,
+		})
+	}
+
+	return watched, nil
+}
+
+func (db *Database) LoadMovieLinks(filepath string) error {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
+	file, err := os.Open(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	scanner := newLineScanner(file)
+	scanner.Scan() // saltar encabezado
+
+	count := 0
+	for scanner.Scan() {
+		line := scanner.Text()
+		parts := parseCSVLine(line)
+		if len(parts) < 3 {
+			continue
+		}
+
+		movieID := parseInt(parts[0])
+		imdb := parts[1]
+		tmdb := parseInt(parts[2])
+
+		db.MovieLinks[movieID] = MovieLink{
+			MovieID: movieID,
+			ImdbID:  imdb,
+			TmdbID:  tmdb,
+		}
+
+		count++
+	}
+
+	fmt.Printf("[DB] Movie links cargados: %d\n", count)
+	return nil
+}
+
+func (db *Database) GetMovieLink(movieID int) (MovieLink, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+
+	link, exists := db.MovieLinks[movieID]
+	if !exists {
+		return MovieLink{}, fmt.Errorf("movie link no encontrado")
+	}
+
+	return link, nil
 }
 
 // HELPERS

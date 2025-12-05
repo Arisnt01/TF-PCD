@@ -1,0 +1,160 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+body{
+  background-color: #000;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+*{
+  color: inherit
+}
+
+.login-page{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.login-box {
+  background: #111;
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.login-box h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  background: #e50914;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.login-box button:hover {
+  opacity: 0.85;
+}
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+  color: white;
+  background: black;
+  position: relative;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  background: #e50914;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout-btn:hover {
+  opacity: 0.85;
+}
+
+
+.boton_sorpresa {
+  background-color: #a78bfa;
+  color: white;
+  padding: 12px 26px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  transition: 0.3s ease;
+}
+
+.boton_sorpresa:hover {
+  background-color: #9465ff;
+  transform: scale(1.05);
+}
+
+.boton_sorpresa:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

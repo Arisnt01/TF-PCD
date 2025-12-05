@@ -97,6 +97,23 @@ type MetricsComparison struct {
 	ScalabilityScore float64 `json:"scalability_score"`
 }
 
+type WatchedMovie struct {
+	MovieID int     `json:"movie_id"`
+	Title   string  `json:"title"`
+	Rating  float64 `json:"rating"`
+}
+
+type UserWatchedResponse struct {
+	UserID  int            `json:"user_id"`
+	Watched []WatchedMovie `json:"watched"`
+}
+
+type MovieLink struct {
+	MovieID int    `json:"movie_id"`
+	ImdbID  string `json:"imdbId"`
+	TmdbID  int    `json:"tmdbId"`
+}
+
 // Registro de Middleware CORS
 func enableCORS(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -355,6 +372,65 @@ func (api *APIServer) handleGetMovie(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(movie)
 }
 
+func (api *APIServer) handleUserMovies(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	userIDStr := r.URL.Query().Get("user_id")
+	if userIDStr == "" {
+		http.Error(w, "missing user_id", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := strconv.Atoi(userIDStr)
+	if err != nil || userID < 1 {
+		http.Error(w, "invalid user_id", http.StatusBadRequest)
+		return
+	}
+
+	// Obtener las películas vistas
+	movies, err := api.db.GetUserWatchedMovies(userID)
+	if err != nil {
+		http.Error(w, "no movies found for this user", http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(UserWatchedResponse{
+		UserID:  userID,
+		Watched: movies,
+	})
+}
+
+func (api *APIServer) handleMovieLinks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	pathParts := splitPath(r.URL.Path)
+	if len(pathParts) < 3 {
+		http.Error(w, "Movie ID required", http.StatusBadRequest)
+		return
+	}
+
+	movieID, err := strconv.Atoi(pathParts[2])
+	if err != nil {
+		http.Error(w, "Invalid movie ID", http.StatusBadRequest)
+		return
+	}
+
+	link, err := api.db.GetMovieLink(movieID)
+	if err != nil {
+		http.Error(w, "Movie link not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(link)
+}
+
 // Helper para dividir path
 func splitPath(path string) []string {
 	parts := make([]string, 0)
@@ -399,6 +475,8 @@ func StartAPIServer(coordinator *DistributedCoordinator, db *Database, metrics *
 	http.HandleFunc("/api/metrics", loggingMiddleware(enableCORS(api.handleMetrics)))
 	http.HandleFunc("/api/users/", loggingMiddleware(enableCORS(api.handleGetUser)))
 	http.HandleFunc("/api/movies/", loggingMiddleware(enableCORS(api.handleGetMovie)))
+	http.HandleFunc("/api/user-movies", loggingMiddleware(enableCORS(api.handleUserMovies)))
+	http.HandleFunc("/api/movie-links/", loggingMiddleware(enableCORS(api.handleMovieLinks)))
 
 	// Ruta raíz
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -421,6 +499,7 @@ func StartAPIServer(coordinator *DistributedCoordinator, db *Database, metrics *
 	log.Printf("[API]   GET    /api/metrics")
 	log.Printf("[API]   GET    /api/users/{id}")
 	log.Printf("[API]   GET    /api/movies/{id}")
+	log.Printf("[API]   GET    /api/user-movies?user_id={id}")
 
 	if err := http.ListenAndServe(port, nil); err != nil {
 		log.Fatalf("[API] Error iniciando servidor: %v", err)
