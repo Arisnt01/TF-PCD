@@ -1,3 +1,4 @@
+# Profesor, tuvimos problemas de de hacer merge la rama final con el main, nos salió que no hay mada que comparar. La rama donde se encuentra el proyecto final es jhonny. allí se ve la fecha del push. no mosifcamos nada desde la fecha de entrega.
 # Sistema de Recomendación de Películas - Filtrado Colaborativo Distribuido
 
 Sistema de recomendación basado en filtrado colaborativo usuario-usuario implementado en **Go puro** con arquitectura distribuida mediante **TCP sockets**, REST API y sistema de métricas.
